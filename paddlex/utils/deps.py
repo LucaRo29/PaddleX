@@ -109,6 +109,18 @@ def is_dep_available(dep, /, check_version=False):
         return importlib.util.find_spec("fastdeploy") is not None
     elif dep == "onnxruntime":
         return importlib.util.find_spec("onnxruntime") is not None
+    elif dep in (
+        "opencv-python",
+        "opencv-contrib-python",
+        "opencv-python-headless",
+        "opencv-contrib-python-headless",
+    ):
+        # OpenCV ships four interchangeable distributions that all provide the
+        # same importable cv2 module/ABI; the *-headless ones are the standard
+        # choice for servers/containers (they link no OpenGL/X11 system libs).
+        # Detect by the import package rather than a single distribution name so
+        # a valid headless install is not rejected.
+        return importlib.util.find_spec("cv2") is not None
     version = get_dep_version(dep)
     if version is None:
         return False
